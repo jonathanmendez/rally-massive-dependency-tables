@@ -889,8 +889,11 @@ JAVASCRIPT_BLOCK
 
     <script type="text/javascript" src="APP_SDK_PATH"></script>
 
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
     <script type="text/javascript">
-        Rally.onReady(function() {
+        google.load('visualization', '1', {packages:['table']});
+        google.setOnLoadCallback(function() {
             Rally.loadScripts([
                 JAVASCRIPT_BLOCK
             ], function() {
@@ -915,8 +918,11 @@ STYLE_BLOCK
 
     <script type="text/javascript" src="APP_SDK_PATH"></script>
 
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
     <script type="text/javascript">
-        Rally.onReady(function() {
+        google.load('visualization', '1', {packages:['table']});
+        google.setOnLoadCallback(function() {
 #{JAVASCRIPT_INLINE_BLOCK_TPL}        });
     </script>
 
