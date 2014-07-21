@@ -821,6 +821,7 @@
         // google table is scary because row is pushed as an array of column values
         // that have to be matched to the cols array above (would be nice to have key indexing)
 
+        var dateRenderer = Ext.util.Format.dateRenderer('m/d/Y');
         var number_of_rows = rows.length;
         var actual_rows = [];
         for ( var i=0; i<number_of_rows; i++ ) {
@@ -833,13 +834,16 @@
                 
                 if ( /^schedule_state/.test(column.id) && rows[i].blocked ) {
                     style = { style: 'background-color: #FFCCCC', blocked: true };
+                    
                 }
                 
                 if ( /other_schedule_state/.test(column.id) && rows[i].other_blocked ) {
                     style = { style: 'background-color: #FFCCCC', blocked: true };
                 }
                 
+                var my_row_data = rows[i][column.id];
                 if ( /Date/.test(column.label) ) {
+                    my_row_data = Ext.util.Format.dateRenderer('m/d/Y')(my_row_data);
                     if (! rows[i][column.id] ) {
                         style = { style: 'border: 3px solid yellow', unscheduled: true };
                     } else if (/Iteration/.test(column.label) && rows[i].iteration_out_of_sync ){
@@ -849,7 +853,14 @@
                     }
                 }
                 table_row.push( { v: rows[i][column.id], p: style } );
-                better_table_row.push(rows[i][column.id]);
+                
+                if(style.blocked || style.late) {
+                    my_row_data = '<span style="color:Red;">' + my_row_data + '</span>';
+                }
+                if(style.unscheduled) {
+                    my_row_data = '<span style="color:Orange;">N/A</span>';
+                }
+                better_table_row.push(my_row_data);
 
             });
             data_table.addRow(table_row);
@@ -864,14 +875,14 @@
                 { name: 'epic_report', type: 'string' },
                 { name: 'name', type: 'string' },
                 { name: 'schedule_state', type: 'string' },
-                { name: 'release_date', type: 'date', dateFormat: 'n/j/y' },
-                { name: 'iteration_date', type: 'date', dateFormat: 'n/j/y' },
+                { name: 'release_date', type: 'string'},
+                { name: 'iteration_date', type: 'string'},
                 { name: 'other_project', type: 'string' },
                 { name: 'other_epic_report', type: 'string' },
                 { name: 'other_name', type: 'string' },
                 { name: 'other_schedule_state', type: 'string' },
-                { name: 'other_release_date', type: 'date', dateFormat: 'n/j/y' },
-                { name: 'other_iteration_date', type: 'date', dateFormat: 'n/j/y' },
+                { name: 'other_release_date', type: 'string'},
+                { name: 'other_iteration_date', type: 'string'},
                 { name: 'tags', type: 'string' }
                 ],
             data: actual_rows
@@ -936,7 +947,10 @@
                     text: 'Tags',
                     dataIndex: 'tags'
                 }
-            ]
+            ],
+            viewConfig: {
+                stripeRows: true
+            }
         });
         
         this.down('#table_box').add(grid);
