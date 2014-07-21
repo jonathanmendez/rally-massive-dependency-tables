@@ -8,6 +8,7 @@
  * 02 Apr 2013: Workaround for project scoping/permission problem
  * 
  */
+ /* global Ext, Rally, google */
  Ext.define('CustomApp', {
     extend: 'Rally.app.App',
     componentCls: 'app',
@@ -821,8 +822,10 @@
         // that have to be matched to the cols array above (would be nice to have key indexing)
 
         var number_of_rows = rows.length;
+        var actual_rows = [];
         for ( var i=0; i<number_of_rows; i++ ) {
             var table_row = [];
+            var better_table_row = [];
             Ext.Array.each( me.columns, function(column) {
 
                 // iteration_out_of_sync
@@ -846,11 +849,97 @@
                     }
                 }
                 table_row.push( { v: rows[i][column.id], p: style } );
+                better_table_row.push(rows[i][column.id]);
 
             });
             data_table.addRow(table_row);
+            actual_rows.push(better_table_row);
         }
         this.data_tables[type] = data_table;
+        
+        var store = Ext.create('Ext.data.ArrayStore', {
+            fields: [
+                { name: 'direction', type: 'string' },
+                { name: 'project', type: 'string' },
+                { name: 'epic_report', type: 'string' },
+                { name: 'name', type: 'string' },
+                { name: 'schedule_state', type: 'string' },
+                { name: 'release_date', type: 'date', dateFormat: 'n/j/y' },
+                { name: 'iteration_date', type: 'date', dateFormat: 'n/j/y' },
+                { name: 'other_project', type: 'string' },
+                { name: 'other_epic_report', type: 'string' },
+                { name: 'other_name', type: 'string' },
+                { name: 'other_schedule_state', type: 'string' },
+                { name: 'other_release_date', type: 'date', dateFormat: 'n/j/y' },
+                { name: 'other_iteration_date', type: 'date', dateFormat: 'n/j/y' },
+                { name: 'tags', type: 'string' }
+                ],
+            data: actual_rows
+        });
+
+        var grid = Ext.create('Ext.grid.Panel', {
+            store: store,
+            columns: [
+                {
+                    text: 'Your Team...',
+                    dataIndex: 'direction'
+                },
+                {
+                    text: left_team,
+                    dataIndex: 'project'
+                },
+                {
+                    text: 'Epic',
+                    dataIndex: 'epic_report'
+                },
+                {
+                    text: left_story,
+                    dataIndex: 'name'
+                },
+                {
+                    text: 'State',
+                    dataIndex: 'schedule_state'
+                },
+                {
+                    text: 'Release Date',
+                    dataIndex: 'release_date'
+                },
+                {
+                    text: 'Iteration Date',
+                    dataIndex: 'iteration_date'
+                },
+                {
+                    text: right_team,
+                    dataIndex: 'other_project'
+                },
+                {
+                    text: 'Epic',
+                    dataIndex: 'other_epic_report'
+                },
+                {
+                    text: right_story,
+                    dataIndex: 'other_name'
+                },
+                {
+                    text: 'Scheduled State',
+                    dataIndex: 'other_schedule_state'
+                },
+                {
+                    text: 'Release Date',
+                    dataIndex: 'other_release_date'
+                },
+                {
+                    text: 'Iteration Date',
+                    dataIndex: 'other_iteration_date'
+                },
+                {
+                    text: 'Tags',
+                    dataIndex: 'tags'
+                }
+            ]
+        });
+        
+        this.down('#table_box').add(grid);
         
         var date_formatter = new google.visualization.DateFormat({formatType:'short'});
         Ext.Array.each(me.columns,function(column,index){
@@ -867,7 +956,7 @@
         if ( me.down('#' + table_box_id ) ) { me.down('#'+table_box_id).destroy(); }
         me.down('#'+outer_box_id).add( { xtype: 'container', id: table_box_id });
         
-        this.tables[type] = new google.visualization.Table( document.getElementById(table_box_id) );
+        //this.tables[type] = new google.visualization.Table( document.getElementById(table_box_id) );
         //this.tables[type].draw( view, { showRowNumber: false, allowHtml: true } );
         me._redrawTables();
     },
